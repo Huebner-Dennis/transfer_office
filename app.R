@@ -26,7 +26,8 @@ ui <- page_navbar(
              card(
                card_header("Type of utilisation"),
                echarts4rOutput("use", height = "100%", width = "100%"),
-               style = "height: 90vh; width: 100%; background-color: #e9ebeb;",
+               style = "height: 90vh; width: 100%; ",
+              # background-color: #e9ebeb;",
                full_screen = TRUE
              )
       )
@@ -138,7 +139,9 @@ server <- function(input, output) {
   #load data
   data = read_excel("data.xlsx")
   
+  data$id = as.character(data$id)
   data$applicants = as.character(data$applicants)
+  
   
   #load meta data
   prep_load_workbook_like_file("meta_dqa_transferoffice.xlsx")
@@ -200,12 +203,12 @@ server <- function(input, output) {
   
   sparkline2 <- 
     data %>% 
-    dplyr::group_by(data_provision) %>% 
+    dplyr::group_by(date_of_data_provision) %>% 
     dplyr::summarise(Count = n()) %>% 
     drop_na() %>% 
     plot_ly() %>%
     add_lines(
-      x = ~data_provision, y = ~Count,
+      x = ~date_of_data_provision, y = ~Count,
       color = I("white"), span = I(1),
       fill = 'tozeroy', alpha = 0.2
     ) %>%
@@ -240,7 +243,7 @@ server <- function(input, output) {
   # Amount of data provisions
   output$provision <- renderUI({
     data %>%
-      dplyr::select(data_provision) %>% 
+      dplyr::select(date_of_data_provision) %>% 
       drop_na() %>% 
       nrow() %>% 
       bslib::value_box(
@@ -278,12 +281,12 @@ server <- function(input, output) {
   
   sparkline_archiving <- 
     data %>% 
-    dplyr::group_by(archiving) %>% 
+    dplyr::group_by(date_of_archiving) %>% 
     dplyr::summarise(Count = n()) %>% 
     drop_na() %>% 
     plot_ly() %>%
     add_lines(
-      x = ~archiving, y = ~Count,
+      x = ~date_of_archiving, y = ~Count,
       color = I("white"), span = I(1),
       fill = 'tozeroy', alpha = 0.2
     ) %>%
@@ -318,7 +321,7 @@ server <- function(input, output) {
   # Amount of data provisions
   output$archiving <- renderUI({
     data %>%
-      dplyr::select(archiving) %>% 
+      dplyr::select(date_of_archiving) %>% 
       drop_na() %>% 
       nrow() %>% 
       bslib::value_box(
@@ -490,7 +493,7 @@ server <- function(input, output) {
                        title = "No unit missingness",
                        theme_color = "succeSss")
     } else{
-      bslib::value_box(value = paste(unit_miss$SummaryData$N,"Requests with no entries:",
+      bslib::value_box(value = paste(unit_miss$SummaryData$N,"Request with no entries:",
                                      paste(subset(unit_miss$FlaggedStudyData,Unit_missing > 0)$ID, collapse = ", ")), 
                        title = paste(unit_miss$SummaryData$X.,"%", "Unit missingness"),
                        theme_color = "danger")
